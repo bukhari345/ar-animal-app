@@ -1,6 +1,6 @@
 'use client';
 
-import { use, useState } from 'react';
+import { use, useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { Language } from '../../../../lib/i18n/translations';
 
@@ -16,25 +16,30 @@ const animalData: Record<string, {
   nameEn: string;
   nameAr: string;
   scientificName: string;
-  image: string;
+  hasVideo: boolean;
+  videoPath?: string;
+  placeholderImage?: string;
 }> = {
   '1': {
     nameEn: 'White-Tailed Lapwing',
     nameAr: 'الزقزاق أبيض الذيل',
     scientificName: 'VANELLUS LEUCURUS',
-    image: 'https://images.unsplash.com/photo-1535083783855-76ae62b2914e?w=800',
+    hasVideo: false,
+    placeholderImage: 'https://images.unsplash.com/photo-1535083783855-76ae62b2914e?w=800',
   },
   '5': {
     nameEn: 'Eurasian Stone-Curlew',
     nameAr: 'الكروان الأوراسي',
     scientificName: 'BURHINUS OEDICNEMUS',
-    image: 'https://images.unsplash.com/photo-1444464666168-49d633b86797?w=800',
+    hasVideo: true,
+    videoPath: '/videos/en/Stone-curlew_videomain.mp4',
   },
   '19': {
     nameEn: 'Desert Monitor',
     nameAr: 'ورل الصحراء',
     scientificName: 'VARANUS GRISEUS',
-    image: 'https://images.unsplash.com/photo-1564349683136-77e08dba1ef7?w=800',
+    hasVideo: false,
+    placeholderImage: 'https://images.unsplash.com/photo-1564349683136-77e08dba1ef7?w=800',
   },
 };
 
@@ -42,9 +47,10 @@ export default function AnimalVideoPage({ params }: AnimalVideoPageProps) {
   const { lang, id } = use(params);
   const router = useRouter();
   const isArabic = lang === 'ar';
-  const [showPlayButton, setShowPlayButton] = useState(true);
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const [isPlaying, setIsPlaying] = useState(false);
 
-  const animal = animalData[id] || animalData['19'];
+  const animal = animalData[id] || animalData['5'];
 
   const handleEnterAR = () => {
     router.push(`/${lang}/ar-view/${id}`);
@@ -54,13 +60,20 @@ export default function AnimalVideoPage({ params }: AnimalVideoPageProps) {
     router.back();
   };
 
-  const handlePlay = () => {
-    setShowPlayButton(false);
+  const handlePlayPause = () => {
+    if (videoRef.current) {
+      if (isPlaying) {
+        videoRef.current.pause();
+      } else {
+        videoRef.current.play();
+      }
+      setIsPlaying(!isPlaying);
+    }
   };
 
   return (
     <main className="min-h-screen bg-black relative overflow-hidden">
-      {/* Top Back Button - Visible on top */}
+      {/* Top Back Button */}
       <div className="absolute top-0 left-0 right-0 z-20 p-4">
         <button
           onClick={handleBack}
@@ -84,29 +97,65 @@ export default function AnimalVideoPage({ params }: AnimalVideoPageProps) {
         </button>
       </div>
 
-      {/* Full Screen Image/Video Placeholder */}
-      <div 
-        className="absolute inset-0 bg-cover bg-center"
-        style={{ backgroundImage: `url(${animal.image})` }}
-      >
-        {/* Slight dark overlay */}
-        <div className="absolute inset-0 bg-black/20"></div>
+      {/* Full Screen Video or Placeholder */}
+      <div className="absolute inset-0">
+        {animal.hasVideo ? (
+          // Actual Video with Controls
+          <>
+            <video
+              ref={videoRef}
+              className="w-full h-full object-cover"
+              controls
+              playsInline
+              loop
+              onPlay={() => setIsPlaying(true)}
+              onPause={() => setIsPlaying(false)}
+            >
+              <source src={animal.videoPath} type="video/mp4" />
+              Your browser does not support the video tag.
+            </video>
 
-        {/* Play Button Overlay */}
-        {showPlayButton && (
-          <div 
-            className="absolute inset-0 flex items-center justify-center cursor-pointer"
-            onClick={handlePlay}
-          >
-            <div className="w-24 h-24 rounded-full bg-white/30 backdrop-blur-sm flex items-center justify-center hover:bg-white/40 transition-all hover:scale-110">
-              <div className="w-0 h-0 border-t-[18px] border-t-transparent border-l-[28px] border-l-white border-b-[18px] border-b-transparent ml-2"></div>
+            {/* Custom Play Button Overlay - Only shows when paused */}
+            {!isPlaying && (
+              <div 
+                className="absolute inset-0 flex items-center justify-center pointer-events-none"
+              >
+                <button
+                  onClick={handlePlayPause}
+                  className="w-24 h-24 rounded-full bg-white/30 backdrop-blur-sm flex items-center justify-center hover:bg-white/40 transition-all pointer-events-auto"
+                >
+                  <div className="w-0 h-0 border-t-[18px] border-t-transparent border-l-[28px] border-l-white border-b-[18px] border-b-transparent ml-2"></div>
+                </button>
+              </div>
+            )}
+          </>
+        ) : (
+          // Placeholder Image
+          <>
+            <div 
+              className="w-full h-full bg-cover bg-center"
+              style={{ backgroundImage: `url(${animal.placeholderImage})` }}
+            >
+              <div className="absolute inset-0 bg-black/20"></div>
             </div>
-          </div>
+
+            {/* Placeholder Play Button */}
+            <div className="absolute inset-0 flex items-center justify-center">
+              <div className="text-center">
+                <div className="w-24 h-24 mx-auto rounded-full bg-white/30 backdrop-blur-sm flex items-center justify-center mb-4">
+                  <div className="w-0 h-0 border-t-[18px] border-t-transparent border-l-[28px] border-l-white border-b-[18px] border-b-transparent ml-2"></div>
+                </div>
+                <p className="text-white/60 text-sm">
+                  {isArabic ? 'الفيديو قريباً' : 'Video Coming Soon'}
+                </p>
+              </div>
+            </div>
+          </>
         )}
       </div>
 
       {/* Bottom Overlay with Info and Buttons */}
-      <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/95 via-black/75 to-transparent p-4 pb-6">
+      <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/95 via-black/75 to-transparent p-4 pb-6 z-10">
         
         {/* Animal Info */}
         <div className="mb-4 text-center">

@@ -183,12 +183,7 @@ export default function IntroVideoPage({ params }: IntroVideoPageProps) {
               </button>
 
               {/* Win a Book Button */}
-              <button
-                onClick={handleWinBook}
-                className="w-full bg-[#3A3A3A] hover:bg-[#4A4A4A] text-white font-semibold text-base py-4 px-6 rounded-lg transition-all shadow-lg"
-              >
-                {isArabic ? 'اربح كتابًا' : 'Win a Book'}
-              </button>
+           
             </div>
           ) : (
             <div className="text-center py-4">

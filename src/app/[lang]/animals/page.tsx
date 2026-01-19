@@ -13,34 +13,154 @@ interface AnimalsPageProps {
 
 // Animal data - Page 1
 const animalsPage1 = [
-  { id: 1, nameEn: 'WHITE-TAILED\nLAPWING', nameAr: 'الزقزاق\nأبيض الذيل', emoji: '🦆', color: 'from-gray-600 to-gray-800' },
-  { id: 2, nameEn: 'MASKED\nSHRIKE', nameAr: 'الصرد\nالمقنع', emoji: '🐦', color: 'from-blue-600 to-blue-800' },
-  { id: 3, nameEn: 'BLUE-CHEEKED\nBEE-EATER', nameAr: 'الوروار\nأزرق الخد', emoji: '🦜', color: 'from-cyan-500 to-blue-600' },
-  { id: 4, nameEn: 'PURPLE\nSUNBIRD', nameAr: 'الطنان\nالأرجواني', emoji: '🐦', color: 'from-orange-500 to-red-600' },
-  { id: 5, nameEn: 'EURASIAN\nSTONE-CURLEW', nameAr: 'الكروان\nالأوراسي', emoji: '🦅', color: 'from-amber-600 to-yellow-700' },
-  { id: 6, nameEn: 'HOUBARA\nBUSTARD', nameAr: 'الحبارى', emoji: '🦃', color: 'from-green-600 to-green-800' },
-  { id: 7, nameEn: 'LITTLE\nGREBE', nameAr: 'الغطاس\nالصغير', emoji: '🦆', color: 'from-blue-500 to-cyan-600' },
-  { id: 8, nameEn: 'WESTERN GREAT\nEGRET', nameAr: 'البلشون الأبيض\nالكبير', emoji: '🦢', color: 'from-gray-400 to-gray-600' },
-  { id: 9, nameEn: 'HOOPOE', nameAr: 'الهدهد', emoji: '🐦', color: 'from-amber-500 to-orange-600' },
-  { id: 10, nameEn: 'THE YELLOW\nWAGTAIL', nameAr: 'الذعرة\nالصفراء', emoji: '🐤', color: 'from-yellow-400 to-amber-600' },
-  { id: 11, nameEn: 'THE ARABIAN\nGREEN BEE-EATER', nameAr: 'الوروار الأخضر\nالعربي', emoji: '🦜', color: 'from-green-500 to-emerald-700' },
-  { id: 12, nameEn: 'RAQAB SAND\nGROUSE', nameAr: 'القطا\nالرقاب', emoji: '🦅', color: 'from-stone-500 to-amber-700' },
+  { 
+    id: 1, 
+    nameEn: 'WHITE-TAILED\nLAPWING', 
+    nameAr: 'الزقزاق\nأبيض الذيل', 
+    image: '/animals/AL MARMOOM_ICONS_12.png' 
+  },
+  { 
+    id: 2, 
+    nameEn: 'WATER RAIL', 
+    nameAr: 'مرعة\nالماء', 
+    image: '/animals/AL MARMOOM_ICONS_13.png' 
+  },
+  { 
+    id: 3, 
+    nameEn: 'BLUE\nTHROATED\nWAGTAIL', 
+    nameAr: 'الذعرة\nزرقاء الحلق', 
+    image: '/animals/AL MARMOOM_ICONS_14.png' 
+  },
+  { 
+    id: 4, 
+    nameEn: 'PURPLE\nSUNBIRD', 
+    nameAr: 'الطنان\nالأرجواني', 
+    image: '/animals/AL MARMOOM_ICONS_15.png' 
+  },
+  { 
+    id: 5, 
+    nameEn: 'EURASIAN\nSTONE-CURLEW', 
+    nameAr: 'الكروان\nالأوراسي', 
+    image: '/animals/AL MARMOOM_ICONS_16.png' 
+  },
+  { 
+    id: 6, 
+    nameEn: 'HOUBARA\nBUSTARD', 
+    nameAr: 'الحبارى', 
+    image: '/animals/AL MARMOOM_ICONS_17.png' 
+  },
+  { 
+    id: 7, 
+    nameEn: 'LITTLE\nGREBE', 
+    nameAr: 'الغطاس\nالصغير', 
+    image: '/animals/AL MARMOOM_ICONS_18.png' 
+  },
+  { 
+    id: 8, 
+    nameEn: 'WESTERN GREAT\nEGRET', 
+    nameAr: 'البلشون\nالأبيض الكبير', 
+    image: '/animals/AL MARMOOM_ICONS_19.png' 
+  },
+  { 
+    id: 9, 
+    nameEn: 'HOOPOE', 
+    nameAr: 'الهدهد', 
+    image: '/animals/AL MARMOOM_ICONS_20.png' 
+  },
+  { 
+    id: 10, 
+    nameEn: 'THE YELLOW\nWAGTAIL', 
+    nameAr: 'الذعرة\nالصفراء', 
+    image: '/animals/AL MARMOOM_ICONS_21.png' 
+  },
+  { 
+    id: 11, 
+    nameEn: 'THE ARABIAN\nGREEN BEE-EATER', 
+    nameAr: 'الوروار الأخضر\nالعربي', 
+    image: '/animals/AL MARMOOM_ICONS_22.png' 
+  },
+  { 
+    id: 12, 
+    nameEn: 'IRAQI\nSANDGROUSE', 
+    nameAr: 'القطا\nالعراقي', 
+    image: '/animals/AL MARMOOM_ICONS_23.png' 
+  },
 ];
 
 // Animal data - Page 2
 const animalsPage2 = [
-  { id: 13, nameEn: 'DESERT\nFOX', nameAr: 'ثعلب\nالصحراء', emoji: '🦊', color: 'from-orange-600 to-red-700' },
-  { id: 14, nameEn: 'ARABIAN\nORYX', nameAr: 'المها\nالعربي', emoji: '🦌', color: 'from-gray-500 to-stone-600' },
-  { id: 15, nameEn: 'SAND\nCAT', nameAr: 'قط\nالرمال', emoji: '🐱', color: 'from-amber-400 to-yellow-600' },
-  { id: 16, nameEn: 'DESERT\nHEDGEHOG', nameAr: 'قنفذ\nالصحراء', emoji: '🦔', color: 'from-brown-500 to-amber-700' },
-  { id: 17, nameEn: 'ARABIAN\nGAZELLE', nameAr: 'الغزال\nالعربي', emoji: '🦌', color: 'from-amber-600 to-orange-700' },
-  { id: 18, nameEn: 'SAND\nVIPER', nameAr: 'أفعى\nالرمال', emoji: '🐍', color: 'from-yellow-700 to-amber-800' },
-  { id: 19, nameEn: 'DESERT\nMONITOR', nameAr: 'ورل\nالصحراء', emoji: '🦎', color: 'from-green-700 to-emerald-800' },
-  { id: 20, nameEn: 'CARACAL', nameAr: 'الوشق', emoji: '🐆', color: 'from-orange-700 to-red-800' },
-  { id: 21, nameEn: 'ARABIAN\nWOLF', nameAr: 'الذئب\nالعربي', emoji: '🐺', color: 'from-gray-600 to-slate-800' },
-  { id: 22, nameEn: 'SPINY-TAILED\nLIZARD', nameAr: 'الضب', emoji: '🦎', color: 'from-lime-600 to-green-700' },
-  { id: 23, nameEn: 'DESERT\nHARE', nameAr: 'أرنب\nالصحراء', emoji: '🐰', color: 'from-stone-400 to-gray-600' },
-  { id: 24, nameEn: 'HONEY\nBADGER', nameAr: 'غرير\nالعسل', emoji: '🦡', color: 'from-gray-700 to-black' },
+  { 
+    id: 13, 
+    nameEn: 'DESERT\nEAGLE OWL', 
+    nameAr: 'بومة النسر\nالصحراوية', 
+    image: '/animals/AL MARMOOM_ICONS_6.png' 
+  },
+  { 
+    id: 14, 
+    nameEn: 'LITTLE\nOWL', 
+    nameAr: 'البومة\nالصغيرة', 
+    image: '/animals/AL MARMOOM_ICONS_7.png' 
+  },
+  { 
+    id: 15, 
+    nameEn: 'RUPPELS\nFOX', 
+    nameAr: 'ثعلب\nروبل', 
+    image: '/animals/AL MARMOOM_ICONS_8.png' 
+  },
+  { 
+    id: 16, 
+    nameEn: 'GERBILLUS\nCHEESMANI', 
+    nameAr: 'جربوع\nتشيزماني', 
+    image: '/animals/AL MARMOOM_ICONS_9.png' 
+  },
+  { 
+    id: 17, 
+    nameEn: 'HEDGEHOG', 
+    nameAr: 'القنفذ', 
+    image: '/animals/AL MARMOOM_ICONS_10.png' 
+  },
+  { 
+    id: 18, 
+    nameEn: 'DESERT\nHARE', 
+    nameAr: 'أرنب\nالصحراء', 
+    image: '/animals/AL MARMOOM_ICONS_11.png' 
+  },
+  { 
+    id: 19, 
+    nameEn: 'ARABIAN\nORYX', 
+    nameAr: 'المها\nالعربي', 
+    image: '/animals/AL MARMOOM_ICONS_24.png' 
+  },
+  { 
+    id: 20, 
+    nameEn: 'DORCAS\nGAZELLE', 
+    nameAr: 'غزال\nالدركاس', 
+    image: '/animals/AL MARMOOM_ICONS_1.png' 
+  },
+  { 
+    id: 21, 
+    nameEn: 'FROG\nHEADED LIZARD', 
+    nameAr: 'سحلية\nرأس الضفدع', 
+    image: '/animals/AL MARMOOM_ICONS_2.png' 
+  },
+  { 
+    id: 22, 
+    nameEn: 'SANDFISH\nLIZARD', 
+    nameAr: 'سحلية\nالسمكة الرملية', 
+    image: '/animals/AL MARMOOM_ICONS_3.png' 
+  },
+  { 
+    id: 23, 
+    nameEn: 'SPINY TAILED\nLIZARD', 
+    nameAr: 'الضب\nشوكي الذيل', 
+    image: '/animals/AL MARMOOM_ICONS_4.png' 
+  },
+  { 
+    id: 24, 
+    nameEn: 'DORCAS\nGAZELLE', 
+    nameAr: 'غزال\nالدركاس', 
+    image: '/animals/AL MARMOOM_ICONS_5.png' 
+  },
 ];
 
 const allPages = [animalsPage1, animalsPage2];
@@ -107,10 +227,16 @@ export default function AnimalsPage({ params }: AnimalsPageProps) {
               onClick={() => handleAnimalClick(animal.id)}
               className="flex flex-col items-center cursor-pointer group"
             >
-              {/* Circular Image Placeholder */}
+              {/* Circular Image */}
               <div className="relative w-full aspect-square mb-2">
-                <div className={`absolute inset-0 rounded-full overflow-hidden border-2 border-white/10 group-hover:border-[#D4AF37] transition-all shadow-lg bg-gradient-to-br ${animal.color} flex items-center justify-center group-active:scale-95`}>
-                  <span className="text-3xl sm:text-4xl">{animal.emoji}</span>
+                <div className="absolute inset-0 rounded-full overflow-hidden border-2 border-white/10 group-hover:border-[#D4AF37] transition-all shadow-lg group-active:scale-95">
+                  <Image
+                    src={animal.image}
+                    alt={isArabic ? animal.nameAr : animal.nameEn}
+                    fill
+                    className="object-cover"
+                    sizes="(max-width: 768px) 33vw, 25vw"
+                  />
                 </div>
               </div>
 

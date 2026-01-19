@@ -136,6 +136,16 @@ export default async function LandingPage({ params }: LandingPageProps) {
           <p className="text-center text-[10px] text-white/80 pt-2 tracking-wide drop-shadow-xl">
             Supported Desert Conservation Reserve
           </p>
+            <div className="flex justify-center pt-3">
+            <Image
+              src="/dubai.png"
+              alt="Footer Logo"
+              width={200}
+              height={60}
+              className="object-contain opacity-80"
+              style={{ width: 'auto', height: '100px' }}
+            />
+          </div>
         </div>
       </div>
     </main>
