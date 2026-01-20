@@ -11,7 +11,7 @@ interface ARViewPageProps {
   }>;
 }
 
-// AR iframe URLs from Zappar
+// AR iframe URLs - Updated with WebXR link
 const arEmbeds: Record<string, {
   nameEn: string;
   nameAr: string;
@@ -20,17 +20,17 @@ const arEmbeds: Record<string, {
   '1': {
     nameEn: 'White-Tailed Lapwing',
     nameAr: 'الزقزاق أبيض الذيل',
-    iframeUrl: 'https://pk6zz.zappar-us.io/7171000204019462389/',
+    iframeUrl: 'https://webxr.run/06LeM1AzARYJP', // New WebXR link
   },
   '5': {
     nameEn: 'Eurasian Stone-Curlew',
     nameAr: 'الكروان الأوراسي',
-    iframeUrl: 'https://pk6zz.zappar-us.io/7171000204019462389/',
+    iframeUrl: 'https://webxr.run/06LeM1AzARYJP', // New WebXR link
   },
   '19': {
     nameEn: 'Desert Monitor',
     nameAr: 'ورل الصحراء',
-    iframeUrl: 'https://pk6zz.zappar-us.io/7171000204019462389/',
+    iframeUrl: 'https://webxr.run/06LeM1AzARYJP', // New WebXR link
   },
 };
 
@@ -212,12 +212,12 @@ export default function ARViewPage({ params }: ARViewPageProps) {
         </div>
       )}
 
-      {/* Bottom Button - View More - Fixed positioning */}
+      {/* Bottom Button - View More - Compact on Mobile, Right-aligned */}
       {!showInstructions && (
-        <div className="fixed bottom-0 left-0 right-0 z-[9999] p-4 bg-gradient-to-t from-black/90 via-black/70 to-transparent">
+        <div className="fixed bottom-4 right-4 z-[9999]">
           <button
             onClick={handleViewMore}
-            className="w-full max-w-md mx-auto block bg-[#6B5D4F]/90 backdrop-blur-sm hover:bg-[#7B6D5F] text-white font-medium text-base py-4 px-6 rounded-lg transition-all shadow-lg border border-white/10"
+            className="bg-[#6B5D4F]/90 backdrop-blur-sm hover:bg-[#7B6D5F] text-white font-medium text-xs sm:text-sm py-2 px-4 sm:py-3 sm:px-6 rounded-lg transition-all shadow-lg border border-white/10 whitespace-nowrap"
           >
             {isArabic ? 'عرض المزيد' : 'View More'}
           </button>
