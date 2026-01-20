@@ -14,17 +14,19 @@ interface IntroVideoPageProps {
 export default function IntroVideoPage({ params }: IntroVideoPageProps) {
   const { lang } = use(params);
   const [showButtons, setShowButtons] = useState(false);
-  const [showPlayButton, setShowPlayButton] = useState(false);
+  const [showPlayButton, setShowPlayButton] = useState(true); // Show by default for safety
   const [videoStarted, setVideoStarted] = useState(false);
+  const [isMuted, setIsMuted] = useState(true);
 
   const videoRef = useRef<HTMLVideoElement>(null);
   const router = useRouter();
   const isArabic = lang === 'ar';
 
   /**
-   * iOS SAFE VIDEO HANDLING
-   * - Autoplay works ONLY when muted
-   * - No forced video.play() on mount
+   * CROSS-PLATFORM VIDEO HANDLING
+   * - Always start muted for autoplay compatibility
+   * - Show play button by default (safer approach)
+   * - Handle both Android and iOS quirks
    */
   useEffect(() => {
     const video = videoRef.current;
@@ -42,53 +44,76 @@ export default function IntroVideoPage({ params }: IntroVideoPageProps) {
     };
 
     const handlePause = () => {
-      // If autoplay failed, show custom play button
+      // Only show play button if video hasn't started yet
       if (!videoStarted) {
         setShowPlayButton(true);
       }
     };
 
-    const handleCanPlay = () => {
-      // Try to autoplay (will only work if muted on iOS)
-      const playPromise = video.play();
-      
-      if (playPromise !== undefined) {
-        playPromise.catch(() => {
-          // Autoplay failed, show play button
-          setShowPlayButton(true);
-        });
+    const handleEnded = () => {
+      // Auto-show buttons when video ends
+      setShowButtons(true);
+    };
+
+    const handleLoadedMetadata = () => {
+      // Video metadata is loaded, try autoplay
+      attemptAutoplay();
+    };
+
+    const attemptAutoplay = () => {
+      if (video.paused) {
+        const playPromise = video.play();
+        
+        if (playPromise !== undefined) {
+          playPromise
+            .then(() => {
+              // Autoplay succeeded (will be muted)
+              setShowPlayButton(false);
+              setVideoStarted(true);
+            })
+            .catch(() => {
+              // Autoplay blocked - show play button
+              setShowPlayButton(true);
+            });
+        }
       }
     };
 
     video.addEventListener('timeupdate', handleTimeUpdate);
     video.addEventListener('play', handlePlay);
     video.addEventListener('pause', handlePause);
-    video.addEventListener('canplay', handleCanPlay);
+    video.addEventListener('ended', handleEnded);
+    video.addEventListener('loadedmetadata', handleLoadedMetadata);
 
-    // Fallback check for autoplay
+    // Fallback: Check if autoplay worked after delay
     const autoplayCheck = setTimeout(() => {
       if (video.paused && !videoStarted) {
         setShowPlayButton(true);
       }
-    }, 1000);
+    }, 1500);
 
     return () => {
       clearTimeout(autoplayCheck);
       video.removeEventListener('timeupdate', handleTimeUpdate);
       video.removeEventListener('play', handlePlay);
       video.removeEventListener('pause', handlePause);
-      video.removeEventListener('canplay', handleCanPlay);
+      video.removeEventListener('ended', handleEnded);
+      video.removeEventListener('loadedmetadata', handleLoadedMetadata);
     };
   }, [showButtons, videoStarted]);
 
   /**
-   * User gesture → enable sound & play
+   * Handle user-initiated playback
+   * Unmute on first tap (iOS/Android requirement)
    */
   const handleCustomPlayClick = () => {
     const video = videoRef.current;
     if (!video) return;
 
-    video.muted = false; // Enable sound after user tap
+    // Unmute on user interaction
+    video.muted = false;
+    setIsMuted(false);
+
     const playPromise = video.play();
     
     if (playPromise !== undefined) {
@@ -99,12 +124,28 @@ export default function IntroVideoPage({ params }: IntroVideoPageProps) {
         })
         .catch((error) => {
           console.error('Playback failed:', error);
-          // Keep the play button visible if it fails
+          // Keep play button visible
+          setShowPlayButton(true);
         });
     }
   };
 
+  /**
+   * Toggle mute/unmute during playback
+   */
+  const handleMuteToggle = () => {
+    const video = videoRef.current;
+    if (!video) return;
+
+    video.muted = !video.muted;
+    setIsMuted(video.muted);
+  };
+
   const handleStartJourney = () => {
+    router.push(`/${lang}/animals`);
+  };
+
+  const handleSkipVideo = () => {
     router.push(`/${lang}/animals`);
   };
 
@@ -126,23 +167,26 @@ export default function IntroVideoPage({ params }: IntroVideoPageProps) {
 
       {/* Content */}
       <div className="flex-1 flex flex-col px-4 py-6">
-        {/* Video */}
+        {/* Video Container */}
         <div className="w-full max-w-2xl mx-auto relative">
           <video
             ref={videoRef}
             className="w-full rounded-xl shadow-2xl"
             playsInline
             webkit-playsinline="true"
+            x-webkit-airplay="allow"
             muted
             preload="auto"
             crossOrigin="anonymous"
+            controlsList="nodownload"
           >
-            {/* MP4 source - REQUIRED for iOS */}
-            <source src={`/videos/${lang}/intro.mp4`} type="video/mp4" />
+            {/* MP4 source - Best compatibility for iOS and Android */}
+            <source src={`/videos/${lang}/Photgrapher-video.mp4`} type="video/mp4" />
             
-            {/* WebM fallback for browsers that support it */}
-            
+            {/* WebM fallback for desktop browsers */}
+            <source src={`/videos/${lang}/Photgrapher-video.webm`} type="video/webm" />
 
+            {/* Subtitles */}
             <track
               kind="subtitles"
               src="/videos/subtitles/intro-en.vtt"
@@ -150,7 +194,6 @@ export default function IntroVideoPage({ params }: IntroVideoPageProps) {
               label="English"
               default={!isArabic}
             />
-
             <track
               kind="subtitles"
               src="/videos/subtitles/intro-ar.vtt"
@@ -158,18 +201,46 @@ export default function IntroVideoPage({ params }: IntroVideoPageProps) {
               label="العربية"
               default={isArabic}
             />
+
+            Your browser does not support the video tag.
           </video>
 
           {/* Custom Play Overlay */}
           {showPlayButton && (
             <div
-              className="absolute inset-0 flex items-center justify-center bg-black/50 rounded-xl cursor-pointer"
+              className="absolute inset-0 flex items-center justify-center bg-black/60 rounded-xl cursor-pointer z-10"
               onClick={handleCustomPlayClick}
             >
-              <div className="w-20 h-20 rounded-full bg-white/90 hover:bg-white flex items-center justify-center transition-all shadow-2xl hover:scale-110">
-                <div className="w-0 h-0 border-t-[16px] border-t-transparent border-l-[26px] border-l-[#1A1410] border-b-[16px] border-b-transparent ml-2" />
+              <div className="flex flex-col items-center gap-3">
+                <div className="w-20 h-20 rounded-full bg-white/95 hover:bg-white flex items-center justify-center transition-all shadow-2xl hover:scale-110 active:scale-95">
+                  <div className="w-0 h-0 border-t-[16px] border-t-transparent border-l-[26px] border-l-[#1A1410] border-b-[16px] border-b-transparent ml-2" />
+                </div>
+                <p className="text-white text-sm font-medium">
+                  {isArabic ? 'انقر للتشغيل' : 'Tap to Play'}
+                </p>
               </div>
             </div>
+          )}
+
+          {/* Mute/Unmute Button (when video is playing) */}
+          {videoStarted && !showPlayButton && (
+            <button
+              onClick={handleMuteToggle}
+              className="absolute top-4 right-4 w-10 h-10 rounded-full bg-black/50 hover:bg-black/70 flex items-center justify-center transition-all z-10"
+              aria-label={isMuted ? 'Unmute' : 'Mute'}
+            >
+              {isMuted ? (
+                // Muted Icon
+                <svg className="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M9.383 3.076A1 1 0 0110 4v12a1 1 0 01-1.707.707L4.586 13H2a1 1 0 01-1-1V8a1 1 0 011-1h2.586l3.707-3.707a1 1 0 011.09-.217zM12.293 7.293a1 1 0 011.414 0L15 8.586l1.293-1.293a1 1 0 111.414 1.414L16.414 10l1.293 1.293a1 1 0 01-1.414 1.414L15 11.414l-1.293 1.293a1 1 0 01-1.414-1.414L13.586 10l-1.293-1.293a1 1 0 010-1.414z" clipRule="evenodd" />
+                </svg>
+              ) : (
+                // Unmuted Icon
+                <svg className="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M9.383 3.076A1 1 0 0110 4v12a1 1 0 01-1.707.707L4.586 13H2a1 1 0 01-1-1V8a1 1 0 011-1h2.586l3.707-3.707a1 1 0 011.09-.217zM14.657 2.929a1 1 0 011.414 0A9.972 9.972 0 0119 10a9.972 9.972 0 01-2.929 7.071 1 1 0 01-1.414-1.414A7.971 7.971 0 0017 10c0-2.21-.894-4.208-2.343-5.657a1 1 0 010-1.414zm-2.829 2.828a1 1 0 011.415 0A5.983 5.983 0 0115 10a5.984 5.984 0 01-1.757 4.243 1 1 0 01-1.415-1.415A3.984 3.984 0 0013 10a3.983 3.983 0 00-1.172-2.828 1 1 0 010-1.415z" clipRule="evenodd" />
+                </svg>
+              )}
+            </button>
           )}
 
           {/* Description */}
@@ -196,22 +267,32 @@ export default function IntroVideoPage({ params }: IntroVideoPageProps) {
             >
               <button
                 onClick={handleStartJourney}
-                className="w-full bg-[#4A4A4A] hover:bg-[#5A5A5A] text-white font-semibold text-base py-4 px-6 rounded-lg transition-all shadow-lg"
+                className="w-full bg-[#4A4A4A] hover:bg-[#5A5A5A] active:bg-[#3A3A3A] text-white font-semibold text-base py-4 px-6 rounded-lg transition-all shadow-lg"
               >
                 {isArabic ? 'ابدأ الرحلة' : 'Start Journey'}
               </button>
             </div>
           ) : (
-            <div className="text-center py-4">
-              <p className="text-white/60 text-sm">
-                {videoStarted
-                  ? isArabic
-                    ? 'جارٍ تشغيل الفيديو...'
-                    : 'Playing video...'
-                  : isArabic
-                  ? 'انقر فوق تشغيل لبدء الفيديو'
-                  : 'Click play to start video'}
-              </p>
+            <div className="space-y-3">
+              <div className="text-center py-2">
+                <p className="text-white/60 text-sm">
+                  {videoStarted
+                    ? isArabic
+                      ? 'جارٍ تشغيل الفيديو...'
+                      : 'Playing video...'
+                    : isArabic
+                    ? 'انقر فوق تشغيل لبدء الفيديو'
+                    : 'Click play to start video'}
+                </p>
+              </div>
+              
+              {/* Skip button - Always available */}
+              <button
+                onClick={handleSkipVideo}
+                className="w-full bg-transparent border-2 border-white/30 hover:border-white/50 text-white/70 hover:text-white font-medium text-sm py-3 px-6 rounded-lg transition-all"
+              >
+                {isArabic ? 'تخطي الفيديو' : 'Skip Video'}
+              </button>
             </div>
           )}
         </div>
