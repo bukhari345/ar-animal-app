@@ -48,22 +48,36 @@ export default function IntroVideoPage({ params }: IntroVideoPageProps) {
       }
     };
 
+    const handleCanPlay = () => {
+      // Try to autoplay (will only work if muted on iOS)
+      const playPromise = video.play();
+      
+      if (playPromise !== undefined) {
+        playPromise.catch(() => {
+          // Autoplay failed, show play button
+          setShowPlayButton(true);
+        });
+      }
+    };
+
     video.addEventListener('timeupdate', handleTimeUpdate);
     video.addEventListener('play', handlePlay);
     video.addEventListener('pause', handlePause);
+    video.addEventListener('canplay', handleCanPlay);
 
-    // If autoplay fails (iOS), show play overlay
+    // Fallback check for autoplay
     const autoplayCheck = setTimeout(() => {
       if (video.paused && !videoStarted) {
         setShowPlayButton(true);
       }
-    }, 800);
+    }, 1000);
 
     return () => {
       clearTimeout(autoplayCheck);
       video.removeEventListener('timeupdate', handleTimeUpdate);
       video.removeEventListener('play', handlePlay);
       video.removeEventListener('pause', handlePause);
+      video.removeEventListener('canplay', handleCanPlay);
     };
   }, [showButtons, videoStarted]);
 
@@ -74,11 +88,20 @@ export default function IntroVideoPage({ params }: IntroVideoPageProps) {
     const video = videoRef.current;
     if (!video) return;
 
-    video.muted = false; // 🔥 enable sound after user tap
-    video.play();
-
-    setShowPlayButton(false);
-    setVideoStarted(true);
+    video.muted = false; // Enable sound after user tap
+    const playPromise = video.play();
+    
+    if (playPromise !== undefined) {
+      playPromise
+        .then(() => {
+          setShowPlayButton(false);
+          setVideoStarted(true);
+        })
+        .catch((error) => {
+          console.error('Playback failed:', error);
+          // Keep the play button visible if it fails
+        });
+    }
   };
 
   const handleStartJourney = () => {
@@ -109,11 +132,16 @@ export default function IntroVideoPage({ params }: IntroVideoPageProps) {
             ref={videoRef}
             className="w-full rounded-xl shadow-2xl"
             playsInline
+            webkit-playsinline="true"
             muted
-            autoPlay
             preload="auto"
+            crossOrigin="anonymous"
           >
-            <source src={`/videos/${lang}/intro.webm`} type="video/mp4" />
+            {/* MP4 source - REQUIRED for iOS */}
+            <source src={`/videos/${lang}/intro.mp4`} type="video/mp4" />
+            
+            {/* WebM fallback for browsers that support it */}
+            
 
             <track
               kind="subtitles"
