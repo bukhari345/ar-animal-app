@@ -16,6 +16,7 @@ export default function IntroVideoPage({ params }: IntroVideoPageProps) {
   const [showButtons, setShowButtons] = useState(false);
   const [showPlayButton, setShowPlayButton] = useState(false);
   const [videoStarted, setVideoStarted] = useState(false);
+  const [isMuted, setIsMuted] = useState(true); // Start muted for autoplay
   const videoRef = useRef<HTMLVideoElement>(null);
   const router = useRouter();
   const isArabic = lang === 'ar';
@@ -24,7 +25,10 @@ export default function IntroVideoPage({ params }: IntroVideoPageProps) {
     const video = videoRef.current;
     
     if (video) {
-      // Try to autoplay
+      // Set video to muted initially for autoplay to work on iOS
+      video.muted = true;
+      
+      // Try to autoplay (will work on iOS when muted)
       const playPromise = video.play();
       
       if (playPromise !== undefined) {
@@ -55,18 +59,12 @@ export default function IntroVideoPage({ params }: IntroVideoPageProps) {
         setShowPlayButton(false);
       };
 
-      const handlePause = () => {
-        // Don't show play button if video is paused by user using controls
-      };
-
       video.addEventListener('timeupdate', handleTimeUpdate);
       video.addEventListener('play', handlePlay);
-      video.addEventListener('pause', handlePause);
 
       return () => {
         video.removeEventListener('timeupdate', handleTimeUpdate);
         video.removeEventListener('play', handlePlay);
-        video.removeEventListener('pause', handlePause);
       };
     }
   }, [showButtons]);
@@ -74,9 +72,20 @@ export default function IntroVideoPage({ params }: IntroVideoPageProps) {
   const handleCustomPlayClick = () => {
     const video = videoRef.current;
     if (video) {
+      // Unmute and play when user taps
+      video.muted = false;
+      setIsMuted(false);
       video.play();
       setShowPlayButton(false);
       setVideoStarted(true);
+    }
+  };
+
+  const toggleMute = () => {
+    const video = videoRef.current;
+    if (video) {
+      video.muted = !video.muted;
+      setIsMuted(video.muted);
     }
   };
 
@@ -114,6 +123,8 @@ export default function IntroVideoPage({ params }: IntroVideoPageProps) {
             controls
             playsInline
             preload="auto"
+            muted // Start muted for autoplay
+            webkit-playsinline="true" // iOS specific
           >
             <source src={`/videos/${lang}/intro.mp4`} type="video/mp4" />
             
@@ -150,6 +161,28 @@ export default function IntroVideoPage({ params }: IntroVideoPageProps) {
             </div>
           )}
 
+          {/* Mute/Unmute Button - Shows when video is playing */}
+          {videoStarted && !showPlayButton && (
+            <button
+              onClick={toggleMute}
+              className="absolute top-4 right-4 bg-black/70 hover:bg-black/90 text-white p-3 rounded-full transition-all"
+              aria-label={isMuted ? 'Unmute' : 'Mute'}
+            >
+              {isMuted ? (
+                // Muted Icon
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2" />
+                </svg>
+              ) : (
+                // Unmuted Icon
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" />
+                </svg>
+              )}
+            </button>
+          )}
+
           {/* Video Description */}
           <div className="mt-4 text-center">
             <p className="text-white/90 text-sm font-medium">
@@ -162,6 +195,13 @@ export default function IntroVideoPage({ params }: IntroVideoPageProps) {
                 ? 'نظرة سريعة على الأنواع + دعوة للمشاهدة' 
                 : 'Quick species insight + invite to watch'}
             </p>
+            {isMuted && videoStarted && (
+              <p className="text-yellow-400 text-xs mt-2">
+                {isArabic 
+                  ? '🔇 الفيديو صامت - انقر على أيقونة الصوت لإلغاء الكتم' 
+                  : '🔇 Video is muted - Click sound icon to unmute'}
+              </p>
+            )}
           </div>
         </div>
 
